@@ -5,11 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
-#if __cplusplus > 201402L
-#include <filesystem>
-#endif
 
-// Функция для разбиения большого входного файла на более мелкие отсортированные фрагменты
 void createSortedChunks(const std::string& inputFile, const std::string& tempDir, int chunkSize) {
     std::ifstream input(inputFile);
     std::string line;
@@ -41,12 +37,10 @@ void createSortedChunks(const std::string& inputFile, const std::string& tempDir
     input.close();
 }
 
-// Функция для объединения отсортированной части в один выходной файл
 void mergeSortedChunks(const std::string& tempDir, const std::string& outputFile) {
     std::vector<std::ifstream> chunkStreams;
     std::ofstream output(outputFile);
 
-    // Открыть входные потоки для каждого отсортированной части
     for (int i = 0; ; i++) {
         std::string chunkFile = tempDir + "/chunk_" + std::to_string(i);
         std::ifstream chunkStream(chunkFile);
@@ -122,10 +116,10 @@ void externalSort(const std::string& inputFile, const std::string& outputFile, c
 }
 
 void executeProgram(const std::string& ifile, const std::string& ofile, const std::string& tdir) {
-    std::string inputFile = ifile;  // Replace with your input file name
-    std::string outputFile = ofile;  // Replace with your output file name
-    std::string tempDir = tdir;  // Replace with your temporary directory name
-    int chunkSize = 200000;  // кол-во строк в фрагменте
+    std::string inputFile = ifile; 
+    std::string outputFile = ofile;  
+    std::string tempDir = tdir; 
+    int chunkSize = 200000; 
 
     auto timer1 = std::chrono::steady_clock::now();
     externalSort(inputFile, outputFile, tempDir, chunkSize);
@@ -134,24 +128,8 @@ void executeProgram(const std::string& ifile, const std::string& ofile, const st
 }
 
 int main() {
-
-
-#ifdef _WIN32 && (__cplusplus > 201402L)
     std::filesystem::path cwd = std::filesystem::current_path();
     std::string p = cwd.string();
     executeProgram(p + "/input.txt", p + "/output.txt", p + "/temp");
-#elif _WIN32 && (__cplusplus < 201402L)
-    std::cout << "No c++17" << std::endl;// _WIN32
-#endif
-
-#if defined(__linux__) && (__cplusplus > 201402L)
-    std::filesystem::path cwd = std::filesystem::current_path();
-    std::string p = cwd.string();
-    executeProgram(p + "/input.txt", p + "/output.txt", p + "/temp");
-#elif defined(__linux__) && (__cplusplus < 201402L)
-    std::string path{ "/media/sd0/ExternalSort/" };
-    executeProgram(path + "input.txt", path + "output.txt", path + "temp");
-#endif
-
     return 0;
 }
